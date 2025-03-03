@@ -73,10 +73,14 @@ h2 {
 /* Exceptions for interst */
 .form.form--loan {
   grid-template-columns: 2.5fr 1fr 2.5fr;
+  gap: 0.4rem 1rem;
 }
-.form__label--loan {
+
+.form--loan .form__label {
   grid-row: 2;
+  grid-column: 1;
 }
+
 /* End exceptions */
 .form__input {
   width: 100%;

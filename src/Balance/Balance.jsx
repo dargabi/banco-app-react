@@ -1,29 +1,47 @@
-import React, { useMemo } from 'react'; // Importamos React y useMemo
-import './Balance.css'; // Importamos el archivo de estilo CSS
+import React, { useMemo } from 'react';
+import './Balance.css';
 
-// Componente Balance que recibe la prop "movements"
+/**
+ * Componente que muestra el balance actual de la cuenta
+ * Incluye el saldo total y la fecha actual
+ * @param {Array} movements - Array de movimientos de la cuenta
+ */
 function Balance({ movements }) {
-  
-  // Usamos useMemo para evitar recálculos innecesarios del balance
+  /**
+   * Calcula el balance total de la cuenta
+   * Utiliza useMemo para optimizar el rendimiento
+   */
   const balance = useMemo(() => {
-    // Reducimos la lista de movimientos sumando todos los valores
-    return movements.reduce((total, movement) => total + movement, 0);
-  }, [movements]); // El cálculo solo se vuelve a hacer si "movements" cambia
+    return movements.reduce((total, movement) => total + movement.amount, 0);
+  }, [movements]);
+
+  /**
+   * Obtiene y formatea la fecha actual en español
+   * Incluye día de la semana, fecha completa y hora
+   */
+  const currentDate = new Date().toLocaleDateString('es-ES', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  // Capitaliza la primera letra del día de la semana
+  const formattedDate = currentDate.charAt(0).toUpperCase() + currentDate.slice(1);
 
   return (
     <div className="balance">
-      {/* Div que contiene la información del balance */}
       <div>
-        <p className="balance__label">Balance actual</p> {/* Título "Balance actual" */}
+        <p className="balance__label">Balance actual</p>
         <p className="balance__date">
-          A fecha de <span className="date">05/03/2037</span> {/* Fecha estática */}
+          {formattedDate}
         </p>
       </div>
-      {/* Mostramos el balance con dos decimales */}
       <p className="balance__value">{balance.toFixed(2)}€</p>
     </div>
   );
 }
 
-// Exportamos el componente Balance para poder usarlo en otros archivos
 export default Balance;

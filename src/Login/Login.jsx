@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // Usamos useState en vez de useRef para simplificar el manejo del estado
+import React, { useState } from 'react'; 
 import { Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -6,10 +6,18 @@ function Login({ onLogin }) {
   // Usamos el estado local para manejar los valores de los campos
   const [user, setUser] = useState('');
   const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
 
   // Manejador de submit
   const handleLogin = (e) => {
     e.preventDefault();
+    setError('');
+
+    if (!user || !pin) {
+      setError('Por favor, complete todos los campos');
+      return;
+    }
+
     onLogin(user, pin); // Llamamos la función onLogin con los valores actuales
   };
 
@@ -21,9 +29,10 @@ function Login({ onLogin }) {
           type="text"
           size="sm"
           className="rounded-pill"
-          placeholder="user"
+          placeholder="Usuario"
           value={user} // Vinculamos el valor con el estado
           onChange={(e) => setUser(e.target.value)} // Actualizamos el estado cuando el valor cambia
+          required
         />
       </Form.Group>
 
@@ -37,6 +46,7 @@ function Login({ onLogin }) {
           maxLength="4"
           value={pin} // Vinculamos el valor con el estado
           onChange={(e) => setPin(e.target.value)} // Actualizamos el estado cuando el valor cambia
+          required
         />
       </Form.Group>
 
@@ -44,11 +54,13 @@ function Login({ onLogin }) {
       <Button
         variant="outline-secondary"
         type="submit"
-        className="rounded-circle"
         size="sm"
+        className="rounded-pill"
       >
         →
       </Button>
+
+      {error && <span className="text-danger ms-2">{error}</span>}
     </Form>
   );
 }

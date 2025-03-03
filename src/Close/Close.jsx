@@ -1,62 +1,86 @@
-import { useRef } from "react";  // Importa el hook useRef de React para acceder a elementos DOM directamente
-import "../App.css";  // Importa los estilos del archivo App.css
+import { useState } from "react";
+import "../App.css";
 
 function Close({ currentAccount, accounts, setAccount }) {
-  // Se definen las referencias a los campos de entrada para el usuario y el PIN
-  const inputUser = useRef();  // Referencia al campo de texto del nombre de usuario
-  const inputPin = useRef();   // Referencia al campo de texto del PIN
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
-  // Función que se ejecuta cuando el usuario intenta cerrar la cuenta
   const handleCloseAccount = (e) => {
-    e.preventDefault();  // Previene el comportamiento por defecto del formulario (recargar la página)
+    e.preventDefault();
+    setError("");
+    setSuccess(false);
 
-    // Obtiene los valores de los campos de usuario y PIN
-    const user = inputUser.current.value;
-    const pin = inputPin.current.value;
+    const user = e.target.user.value;
+    const pin = e.target.pin.value;
 
-    // Verifica si el nombre de usuario y el PIN coinciden con los de la cuenta activa
-    if (user === currentAccount.username && pin === String(currentAccount.pin)) {
-      // Si los datos son correctos, se actualiza la lista de cuentas excluyendo la cuenta cerrada
-      const updatedAccounts = accounts.filter((acc) => acc.username !== user || String(acc.pin) !== pin);
-      
-      // Se actualiza el estado para quitar la cuenta activa
-      setAccount(null);
-      console.log(updatedAccounts, "Cuenta cerrada exitosamente");  // Muestra en consola la nueva lista de cuentas y el mensaje de éxito
-    } else {
-      console.error("Usuario o PIN incorrectos.");  // Si los datos no coinciden, muestra un mensaje de error
+    if (!user || !pin) {
+      setError("Por favor, complete todos los campos");
+      return;
     }
 
-    // Limpia los campos de entrada para que el formulario quede vacío
-    inputUser.current.value = "";
-    inputPin.current.value = "";
+    if (user !== currentAccount.username || String(currentAccount.pin) !== pin) {
+      setError("Usuario o PIN incorrectos");
+      return;
+    }
+
+    try {
+      // Filtrar la cuenta actual del array de cuentas
+      const updatedAccounts = accounts.filter(
+        (acc) => acc.username !== user || String(acc.pin) !== pin
+      );
+
+      if (updatedAccounts.length === accounts.length) {
+        setError("No se pudo encontrar la cuenta");
+        return;
+      }
+
+      // Actualizar el estado y mostrar mensaje de éxito
+      setAccount(null);
+      setSuccess(true);
+      e.target.reset();
+
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+    } catch (error) {
+      setError("Error al cerrar la cuenta. Por favor, intente nuevamente.");
+      console.error("Error al cerrar cuenta:", error);
+    }
   };
 
   return (
     <div className="operation operation--close">
-      <h2>Cerrar cuenta</h2>  {/* Título del formulario */}
-      <form className="form form--close">
-        {/* Campo para ingresar el nombre de usuario */}
-        <input type="text" className="form__input form__input--user" ref={inputUser} />
-        
-        {/* Campo para ingresar el PIN, limitado a 6 caracteres */}
+      <h2>Cerrar cuenta</h2>
+      <form className="form form--close" onSubmit={handleCloseAccount}>
+        <input
+          type="text"
+          name="user"
+          className="form__input form__input--user"
+          placeholder="Usuario"
+          required
+        />
         <input
           type="password"
+          name="pin"
           maxLength="6"
           className="form__input form__input--pin"
-          ref={inputPin}
+          placeholder="PIN"
+          required
         />
-        
-        {/* Botón para enviar el formulario y cerrar la cuenta */}
-        <button onClick={handleCloseAccount} className="form__btn form__btn--close">
-          &rarr; {/* Representa una flecha hacia la derecha */}
+        <button type="submit" className="form__btn form__btn--close">
+          &rarr;
         </button>
-        
-        {/* Etiquetas que describen los campos de entrada */}
         <label className="form__label">Confirmar usuario</label>
         <label className="form__label">Confirmar PIN</label>
       </form>
+      {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
+      {success && (
+        <p className="success-message" style={{ color: 'green' }}>
+          Cuenta cerrada exitosamente
+        </p>
+      )}
     </div>
   );
 }
 
-export default Close;  // Exporta el componente Close para que pueda ser utilizado en otras partes de la aplicación
+export default Close;

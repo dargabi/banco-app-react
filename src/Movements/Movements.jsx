@@ -1,26 +1,46 @@
 import React from 'react';
 import './Movements.css';
 
+/**
+ * Componente que muestra el historial de movimientos de la cuenta
+ * Incluye ingresos y retiros, ordenados por fecha
+ * @param {Array} movements - Array de movimientos de la cuenta
+ */
 const Movements = ({ movements }) => {
-  // Convertimos los movimientos una sola vez antes del retorno
-  const processedMovements = movements.map(movement => ({
-    value: movement,
-    type: movement < 0 ? 'withdrawal' : 'deposit',
-    date: '24/01/2037' // Utilizamos una fecha fija, pero esto podría ser dinámico si fuera necesario
-  }));
+  /**
+   * Formatea una fecha ISO a formato español
+   * @param {string} dateString - Fecha en formato ISO
+   * @returns {string} Fecha formateada en español
+   */
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Ordenamos los movimientos por fecha, más recientes primero
+  const sortedMovements = [...movements].sort((a, b) => 
+    new Date(b.date) - new Date(a.date)
+  );
 
   return (
     <div className="movements">
-      {processedMovements.map((movement, index) => (
+      {sortedMovements.map((movement, index) => (
         <div key={index} className="movements__row">
-          {/* Mostramos el tipo de movimiento */}
-          <div className={`movements__type movements__type--${movement.type}`}>
-            {movement.type === 'deposit' ? 'Deposit' : 'Withdrawal'}
+          <div className={`movements__type movements__type--${movement.amount < 0 ? 'withdrawal' : 'deposit'}`}>
+            {movement.amount < 0 ? 'Retiro' : 'Ingreso'}
           </div>
-          {/* Fecha del movimiento */}
-          <div className="movements__date">{movement.date}</div>
-          {/* Valor del movimiento */}
-          <div className="movements__value">{movement.value}</div>
+          <div className="movements__date">
+            {formatDate(movement.date)}
+          </div>
+          <div className="movements__value">
+            {movement.amount.toFixed(2)}€
+          </div>
         </div>
       ))}
     </div>
