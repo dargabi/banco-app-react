@@ -1,7 +1,7 @@
 import "../App.css";
 import { useState } from "react";
 
-function Loan({ movements }) {
+function Loan({ movements, onMovementsUpdate }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const LOAN_LIMIT_PERCENTAGE = 200; // 200% del balance actual
@@ -12,7 +12,7 @@ function Loan({ movements }) {
     setError("");
 
     const amountRequested = Number(e.target.amount.value);
-    const currentBalance = movements.reduce((total, mov) => total + mov, 0);
+    const currentBalance = movements.reduce((total, mov) => total + mov.amount, 0);
     const maxLoanAmount = (LOAN_LIMIT_PERCENTAGE / 100) * currentBalance;
 
     // Validaciones
@@ -27,8 +27,15 @@ function Loan({ movements }) {
     }
 
     try {
-      // Procesar el préstamo
-      movements.push(amountRequested);
+      // Crear nuevo movimiento con fecha actual
+      const newMovement = {
+        amount: amountRequested,
+        date: new Date().toISOString()
+      };
+      
+      // Actualizar movimientos
+      const newMovements = [...movements, newMovement];
+      onMovementsUpdate(newMovements);
       
       // Limpiar formulario y mostrar éxito
       e.target.reset();
