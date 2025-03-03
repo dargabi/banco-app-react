@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Movements.css';
 
 /**
@@ -7,6 +7,8 @@ import './Movements.css';
  * @param {Array} movements - Array de movimientos de la cuenta
  */
 const Movements = ({ movements }) => {
+  const [sortAscending, setSortAscending] = useState(false);
+
   /**
    * Formatea una fecha ISO a formato español
    * @param {string} dateString - Fecha en formato ISO
@@ -23,13 +25,23 @@ const Movements = ({ movements }) => {
     });
   };
 
-  // Ordenamos los movimientos por fecha, más recientes primero
-  const sortedMovements = [...movements].sort((a, b) => 
-    new Date(b.date) - new Date(a.date)
-  );
+  // Ordenamos los movimientos por fecha según la dirección elegida
+  const sortedMovements = [...movements].sort((a, b) => {
+    const dateComparison = new Date(b.date) - new Date(a.date);
+    return sortAscending ? -dateComparison : dateComparison;
+  });
+
+  const handleSort = () => {
+    setSortAscending(!sortAscending);
+  };
 
   return (
     <div className="movements">
+      <div className="movements__sort">
+        <button onClick={handleSort} className="movements__sort-btn">
+          Ordenar por fecha {sortAscending ? '↑' : '↓'}
+        </button>
+      </div>
       {sortedMovements.map((movement, index) => (
         <div key={index} className="movements__row">
           <div className={`movements__type movements__type--${movement.amount < 0 ? 'withdrawal' : 'deposit'}`}>

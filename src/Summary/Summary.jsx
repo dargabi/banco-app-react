@@ -25,7 +25,6 @@ function Summary({ movements }) {
       <p className="summary__label">Intereses</p>
       <p className="summary__value summary__value--interest">{interest.toFixed(2)}€</p>
       
-      <button className="btn--sort">↓ Ordenar</button>
     </div>
   );
 }
